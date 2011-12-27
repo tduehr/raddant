@@ -41,14 +41,15 @@ class Raddant
     cnt = @count
     sd = @seed
     @seed = @start_seed || @seed
-    ret = []
+    eret = []
     while( self.next?) do
       yield self.next
-      ret << @seed if @count
+      pp @seed
+      eret << @seed if @count
     end
     @count = cnt
     @seed = sd
-    ret
+    eret
   end
   
   def next
@@ -60,6 +61,7 @@ class Raddant
     ensure
       @temp_file.close
     end
+    @count = @count - 1
     @seed = Digest::SHA512.hexdigest(@seed)
     ret
   end
