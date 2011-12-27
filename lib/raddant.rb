@@ -57,7 +57,6 @@ class Raddant
     eret = []
     while( self.next?) do
       yield self.next
-      pp @seed
       eret << @seed if @count
     end
     @count = cnt
