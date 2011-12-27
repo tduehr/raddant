@@ -10,9 +10,8 @@ class Raddant
 
   self.bin = 'radamsa'
 
-  attr_accessor :indat
-  attr_reader :count, :seed, :fuzzers, :generators, :seek, :polymerase, :muxers, :muxer_polymerase
-  attr_reader :temp_file
+  attr_accessor :indat, :seek, :polymerase, :muxers, :muxer_polymerase
+  attr_accessor :count, :seed, :fuzzers, :generators, :temp_file
 
   def self.fuzz(file, opts={}, &block)
     self.new(file, opts, block)
