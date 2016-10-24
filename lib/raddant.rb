@@ -19,14 +19,9 @@ class Raddant
 
   def initialize(file, opts={}, &block)
     @indat = File.exists?(file) ? File.read(file) : file
-    @count = opts[:count]
+    @count = opts[:count] || 0
     @start_seed = opts[:seed]
     @seed = @start_seed || Digest::SHA512.hexdigest(File.read("/dev/urandom",512))
-    @temp_file = Tempfile.new(opts[:temp_file] || "raddant")
-    @temp_file.write @indat
-    @temp_file.close
-    @out_file = Tempfile.new(opts[:out_file] || opts[:temp_file] || "raddant")
-    @out_file.close
     @seek = opts[:seek]
     @fuzzers = opts[:fuzzers]
     @generators = opts[:generators]
@@ -40,14 +35,9 @@ class Raddant
     (@count && @count < 1) ? false : true
   end
 
-  def indat=(dat)
-    begin
-      @temp_file.open
-      @temp_file.write dat
-    ensure
-      @temp_file.close
-      @indat = dat
-    end
+  def fuzz_once dat
+    self.indat = dat
+    self.next
   end
 
   def each
@@ -65,14 +55,7 @@ class Raddant
   end
   
   def next
-    execute
-    ret = ""
-    begin
-      @out_file.open
-      ret = @out_file.read
-    ensure
-      @out_file.close
-    end
+    ret = execute
     @count = @count - 1
     @seed = Digest::SHA512.hexdigest(@seed)
     ret
@@ -80,7 +63,10 @@ class Raddant
 
   private
   def execute
-    args = ["-s", @seed, "-o", @out_file.path]
+    @out_file = Tempfile.new("raddant")
+    @out_file.close
+    args = ["-s", @seed.to_i(16).to_s, "-o", @out_file.path]
+    @temp_file = Tempfile.new("raddant")
     @temp_file.open
     @temp_file.write @indat
     @temp_file.close
@@ -93,5 +79,10 @@ class Raddant
     args << @temp_file.path
 
     raise "radamsa didn't work: #{$?}" unless system(self.class.bin, *args)
+    @temp_file.close!
+    @out_file.open
+    ret = @out_file.read
+    @out_file.close!
+    ret
   end
 end
