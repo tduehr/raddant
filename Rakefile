@@ -1,6 +1,10 @@
 # encoding: utf-8
 
 require 'rake'
+require 'rake/clean'
+
+CLEAN.add 'tmp'
+CLOBBER.add 'pkg', "doc", '.yardoc'
 
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
@@ -27,4 +31,10 @@ end
 task :default => :test
 
 require 'yard'
-YARD::Rake::YardocTask.new
+YARD::Rake::YardocTask.new do |yard|
+  yard.options << "--embed-mixins"
+end
+YARD::Rake::YardocTask.new(:todo) do |yard|
+  yard.options.concat ['--query', '@todo']
+  yard.options << "--list"
+end
