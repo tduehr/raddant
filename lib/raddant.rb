@@ -17,8 +17,8 @@ class Raddant
     self.new(file, opts, block)
   end
 
-  def initialize(file, opts={}, &block)
-    @indat = File.exists?(file) ? File.read(file) : file
+  def initialize(str = "", opts={}, &block)
+    @indat = str
     @count = opts[:count] || 0
     @start_seed = opts[:seed]
     @seed = @start_seed || Digest::SHA512.hexdigest(File.read("/dev/urandom",512))
